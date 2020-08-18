@@ -5,7 +5,9 @@ import index from '../index'
 
 t.test('login', async t => {
   const fastify = Fastify()
-  fastify.register(index)
+  fastify.register(index, {
+    jwt: { secret: 'wow' }
+  })
 
   const username = 'my-username'
   
@@ -31,7 +33,7 @@ t.test('login', async t => {
     }
   })
 
-  t.equals(meResponse.statusCode, 200, null, meResponse.payload)
+  t.equals(meResponse.statusCode, 200, meResponse.payload)
   const meOutput = JSON.parse(meResponse.payload)
   t.equals(meOutput.username, username)
   t.ok(meOutput.id)

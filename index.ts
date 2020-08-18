@@ -4,10 +4,18 @@ import FastifyFormBody from 'fastify-formbody'
 import FastifySwagger from 'fastify-swagger'
 import User from './types/User'
 
-import  loginPlugin from './login'
-import  datePlugin from './date'
+import loginPlugin, { JwtPluginOption } from './login'
+import datePlugin, { MysqlPluginOption } from './date'
 
-const aa : FastifyPlugin<any> = function (server, ops, done) {
+interface BePluginOption {
+  mysql?: MysqlPluginOption,
+  jwt?:  JwtPluginOption,
+}
+
+const be : FastifyPlugin<BePluginOption> = function (server, ops, done) {
+  const mysqlOptions = ops.mysql || getDefaultMysqlOptions()
+  const jwtOptions = ops.jwt || getDefaultJwtOptions()
+
   server.register(FastifyFormBody)
   server.register(FastifySwagger, {
     routePrefix: '/documentation',
@@ -26,18 +34,27 @@ const aa : FastifyPlugin<any> = function (server, ops, done) {
       }
     }
   })
-  server.register(loginPlugin)
-  server.register(datePlugin, {
-    connectionLimit: 10,
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'my-db',
-    prefix: '/appointment',
-  })
+  server.register(loginPlugin, jwtOptions)
+  server.register(datePlugin, mysqlOptions)
 
   done()
 }
 
-module.exports = aa
-export default aa
+function getDefaultMysqlOptions(obj = process.env): MysqlPluginOption {
+  return {
+    connectionLimit: 10,
+    database: obj.MYSQL_DATABASE || '',
+    host: obj.MYSQL_HOST || '',
+    password: obj.MYSQL_PASSWORD || '',
+    user: obj.MYSQL_USER || ''
+  }
+}
+
+function getDefaultJwtOptions(obj = process.env): JwtPluginOption {
+  return {
+    secret: obj.JWT_SECRET || ''
+  }
+}
+
+module.exports = be
+export default be

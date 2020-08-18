@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifySchema, FastifyPlugin } from 'fastify'
+import fp from 'fastify-plugin'
 import FastifyJwt from 'fastify-jwt'
 
 import AuthBodySchema from './schemas/auth_body.json'
@@ -6,9 +7,20 @@ import { AuthBodySchema as AuthBodySchemaInterface } from './types/auth_body'
 
 import User from '../types/User'
 
-const loginPlugin: FastifyPlugin<any> = function (server: FastifyInstance, ops: any, done: Function) {
-  server.register(FastifyJwt, { secret: 'wow' })
+export interface JwtPluginOption {
+  secret: string;
+}
+
+const loginPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, done: Function) {
+  server.register(FastifyJwt, { secret: ops.secret })
   
+  server.decorate('getUser', async function (request: any): Promise<User> {
+    return {
+      id: Buffer.from(request.user.username).toString('hex'),
+      username: request.user.username,
+    }
+  })
+
   server.route<{ 
     Body: AuthBodySchemaInterface
   }>({
@@ -39,18 +51,8 @@ const loginPlugin: FastifyPlugin<any> = function (server: FastifyInstance, ops: 
     }
   })
 
-  /*
-  server.decorate('getUser', async function (request: any): Promise<User> {
-    console.log('WOW get USER', request.user)
-    return {
-      id: Buffer.from(request.user.username).toString('hex'),
-      username: request.user.username,
-    }
-  })
-  */
-
   done()
-}
+})
 
 module.exports = loginPlugin
 export default loginPlugin

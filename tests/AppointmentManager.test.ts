@@ -16,10 +16,7 @@ t.test('AppointmentManager', async t => {
     password: '1234',
     database: databaseName,
   })
-  t.tearDown(() => {
-    console.log('AA')
-    return pool.end()
-  })
+  t.tearDown(() => pool.end())
   const appointmentManager = new AppointmentManager(pool)
 
   t.test('insertAppointment', async t => {
@@ -183,7 +180,7 @@ t.test('AppointmentManager', async t => {
   t.end()
 })
 
-async function setUpDatabase (t: any, log: FastifyLoggerInstance, databaseName: string) {
+export async function setUpDatabase (t: any, log: FastifyLoggerInstance, databaseName: string) {
   const conn = mysql.createConnection({
     host: 'localhost',
     user: 'root',

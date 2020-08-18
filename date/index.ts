@@ -25,7 +25,6 @@ export interface MysqlPluginOption {
   database: string,
 }
 
-
 const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: FastifyInstance, ops: MysqlPluginOption, done: Function) {
   const pool  = mysql.createPool({
     connectionLimit: ops.connectionLimit,
@@ -40,7 +39,7 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
 
   server.post<{
     Body: CreateBodySchemaInterface
-  }>('/', {
+  }>('/appointments/', {
     schema: {
       body: CreateBodySchema,
       summary: 'Create a new appointment',
@@ -66,7 +65,7 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
 
   server.delete<{
     Params: DeleteParamsSchemaInterface
-  }>('/:id', {
+  }>('/appointments/:id', {
     schema: {
       params: DeleteParamsSchema,
     },
@@ -80,7 +79,7 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
 
   server.get<{
     Params: GetParamsSchemaInterface
-  }>('/:id', {
+  }>('/appointments/:id', {
     schema: {
       params: GetParamsSchema,
     },
@@ -94,7 +93,7 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
 
   server.get<{
     Params: WeekParamsSchemaInterface
-  }>('/year/:year/week/:week', {
+  }>('/appointments/year/:year/week/:week', {
     schema: {
       params: WeekParamsSchema,
     },
