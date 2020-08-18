@@ -3,7 +3,8 @@ import pino from 'pino'
 import mysql from 'mysql'
 import { v4 as uuidV4 } from 'uuid'
 import AppointmentManager, { Appointment } from '../date/lib/AppointmentManager'
-import { FastifyLoggerInstance } from 'fastify'
+
+import { setUpDatabase } from './utils'
 
 t.test('AppointmentManager', async t => {
   const databaseName = 'my-db-' + uuidV4()
@@ -179,14 +180,3 @@ t.test('AppointmentManager', async t => {
 
   t.end()
 })
-
-export async function setUpDatabase (t: any, log: FastifyLoggerInstance, databaseName: string) {
-  const conn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-  })
-  t.tearDown(() => conn.end())
-
-  await AppointmentManager.setUpDatabase(log, conn, databaseName)
-}

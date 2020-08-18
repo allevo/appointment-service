@@ -72,8 +72,9 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
     onRequest: request => request.jwtVerify(),
     handler: async (request, reply) => {
       const user = await server.getUser(request)
-      const appointmentOnDatabase = await appointmentManager.cancelAppointment(request.log, request.params.id)
-      return appointmentOnDatabase
+      await appointmentManager.cancelAppointment(request.log, request.params.id)
+      
+      reply.code(204)
     }
   })
 
@@ -86,8 +87,16 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
     onRequest: request => request.jwtVerify(),
     handler: async (request, reply) => {
       const user = await server.getUser(request)
-      const appointmentOnDatabase = await appointmentManager.getAppointment(request.log, request.params.id)
-      return appointmentOnDatabase
+      try {
+        const appointmentOnDatabase = await appointmentManager.getAppointment(request.log, request.params.id)
+        return appointmentOnDatabase
+      } catch (e) {
+        if (e.message === 'NOT_FOUND') {
+          reply.status(404)
+          return {}
+        }
+        throw e
+      }
     }
   })
 
