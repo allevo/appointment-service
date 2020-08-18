@@ -31,7 +31,7 @@ t.test('login', async t => {
     }
   })
 
-  t.equals(meResponse.statusCode, 200)
+  t.equals(meResponse.statusCode, 200, null, meResponse.payload)
   const meOutput = JSON.parse(meResponse.payload)
   t.equals(meOutput.username, username)
   t.ok(meOutput.id)
