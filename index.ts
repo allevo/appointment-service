@@ -2,7 +2,6 @@ import fastify, { FastifyInstance, FastifyPlugin } from 'fastify'
 
 import FastifyFormBody from 'fastify-formbody'
 import FastifySwagger from 'fastify-swagger'
-import fp from 'fastify-plugin'
 import User from './types/User'
 
 import  loginPlugin from './login'
@@ -27,8 +26,15 @@ const aa : FastifyPlugin<any> = function (server, ops, done) {
       }
     }
   })
-  server.register(fp(loginPlugin))
-  server.register(datePlugin)
+  server.register(loginPlugin)
+  server.register(datePlugin, {
+    connectionLimit: 10,
+    host: 'localhost',
+    user: 'root',
+    password: '1234',
+    database: 'my-db',
+    prefix: '/appointment',
+  })
 
   done()
 }

@@ -1,0 +1,9 @@
+{
+  "title": "Week Params Schema",
+  "type": "object",
+  "properties": {
+    "year": { "type": "integer" },
+    "week": { "type": "integer" }
+  },
+  "required": [ "year", "week" ]
+}

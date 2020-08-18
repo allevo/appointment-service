@@ -1,0 +1,8 @@
+{
+  "title": "Delete Params Schema",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" }
+  },
+  "required": [ "id" ]
+}

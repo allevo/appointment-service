@@ -11,7 +11,8 @@
     "compile-schemas": "npm run compile-schemas-login && npm run compile-schemas-date",
     "compile-schemas-login": "json2ts -i login/schemas -o login/types",
     "compile-schemas-date": "json2ts -i date/schemas -o date/types",
-    "test": "tap tests/",
+    "pretest": "npm run build",
+    "test": "tap -b tests/",
     "lint": "standardx **/*.ts"
   },
   "repository": {

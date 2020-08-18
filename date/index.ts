@@ -1,4 +1,6 @@
 import { FastifyInstance, FastifyPlugin } from 'fastify'
+import fp from 'fastify-plugin'
+
 import mysql from 'mysql'
 
 import AppointmentManager, { Appointment } from './lib/AppointmentManager'
@@ -6,6 +8,14 @@ import AppointmentManager, { Appointment } from './lib/AppointmentManager'
 import CreateBodySchema from './schemas/create_date_body.json'
 import { CreateBodySchema as CreateBodySchemaInterface } from './types/create_date_body'
 
+import DeleteParamsSchema from './schemas/delete_date_params.json'
+import { DeleteParamsSchema as DeleteParamsSchemaInterface }  from './types/delete_date_params'
+
+import GetParamsSchema from './schemas/get_date_params.json'
+import { GetParamsSchema as GetParamsSchemaInterface }  from './types/get_date_params'
+
+import WeekParamsSchema from './schemas/week_date_params.json'
+import { WeekParamsSchema as WeekParamsSchemaInterface }  from './types/week_date_params'
 
 export interface MysqlPluginOption {
   connectionLimit: number,
@@ -16,7 +26,7 @@ export interface MysqlPluginOption {
 }
 
 
-const datePlugin: FastifyPlugin<any> = function (server: FastifyInstance, ops: any, done: Function) {
+const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: FastifyInstance, ops: MysqlPluginOption, done: Function) {
   const pool  = mysql.createPool({
     connectionLimit: ops.connectionLimit,
     host: ops.host,
@@ -33,10 +43,14 @@ const datePlugin: FastifyPlugin<any> = function (server: FastifyInstance, ops: a
   }>('/', {
     schema: {
       body: CreateBodySchema,
+      summary: 'Create a new appointment',
+      security: [
+        { oAuthSample: [ 'qq' ] }
+      ]
     },
+    onRequest: request => request.jwtVerify(),
     handler: async (request, reply) => {
       const user = await server.getUser(request)
-
       const appointment = <Appointment>{
         title: request.body.title,
         description: request.body.description,
@@ -45,15 +59,58 @@ const datePlugin: FastifyPlugin<any> = function (server: FastifyInstance, ops: a
         creatorId: user.id,
         creatorUsername: user.username
       }
+      const appointmentOnDatabase = await appointmentManager.insertAppointment(request.log, appointment)
+      return appointmentOnDatabase
+    }
+  })
 
-      await appointmentManager.insertAppointment(request.log, appointment)
-      
-      return user
+  server.delete<{
+    Params: DeleteParamsSchemaInterface
+  }>('/:id', {
+    schema: {
+      params: DeleteParamsSchema,
+    },
+    onRequest: request => request.jwtVerify(),
+    handler: async (request, reply) => {
+      const user = await server.getUser(request)
+      const appointmentOnDatabase = await appointmentManager.cancelAppointment(request.log, request.params.id)
+      return appointmentOnDatabase
+    }
+  })
+
+  server.get<{
+    Params: GetParamsSchemaInterface
+  }>('/:id', {
+    schema: {
+      params: GetParamsSchema,
+    },
+    onRequest: request => request.jwtVerify(),
+    handler: async (request, reply) => {
+      const user = await server.getUser(request)
+      const appointmentOnDatabase = await appointmentManager.getAppointment(request.log, request.params.id)
+      return appointmentOnDatabase
+    }
+  })
+
+  server.get<{
+    Params: WeekParamsSchemaInterface
+  }>('/year/:year/week/:week', {
+    schema: {
+      params: WeekParamsSchema,
+    },
+    onRequest: request => request.jwtVerify(),
+    handler: async (request, reply) => {
+      const user = await server.getUser(request)
+      const {
+        year, week
+      } = request.params
+      const appointmentOnDatabase = await appointmentManager.getAppointmentsByWeek(request.log, year, week)
+      return appointmentOnDatabase
     }
   })
 
   done()
-}
+})
 
 module.exports = datePlugin
 export default datePlugin

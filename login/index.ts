@@ -39,12 +39,15 @@ const loginPlugin: FastifyPlugin<any> = function (server: FastifyInstance, ops: 
     }
   })
 
-  server.decorate('getUser', async function (request: any): Promise<any> {
-    return <User>{
+  /*
+  server.decorate('getUser', async function (request: any): Promise<User> {
+    console.log('WOW get USER', request.user)
+    return {
       id: Buffer.from(request.user.username).toString('hex'),
       username: request.user.username,
     }
   })
+  */
 
   done()
 }
