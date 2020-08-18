@@ -3,7 +3,7 @@ import t from 'tap'
 
 import index from '../index'
 
-t.test('login', async t => {
+t.test('auth', async t => {
   const fastify = Fastify()
   fastify.register(index, {
     jwt: { secret: 'wow' }
@@ -13,7 +13,7 @@ t.test('login', async t => {
 
   const loginResponse = await fastify.inject({
     method: 'POST',
-    path: '/auth',
+    path: '/oauth/token',
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
     },

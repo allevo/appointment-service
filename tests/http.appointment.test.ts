@@ -29,7 +29,7 @@ t.test('appointments', async t => {
 
   const loginResponse = await fastify.inject({
     method: 'POST',
-    path: '/auth',
+    path: '/oauth/token',
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
     },

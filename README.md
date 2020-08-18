@@ -30,6 +30,6 @@ npm test
 - [x] login
 - [ ] ACL
 - [x] Test
-- [ ] Better swagger tag
+- [x] Better swagger tag
 - [ ] Configure CI
 - [ ] Move to Lambda using [aws-lambda-fastify](https://github.com/fastify/aws-lambda-fastify)

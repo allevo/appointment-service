@@ -4,8 +4,8 @@ import FastifyFormBody from 'fastify-formbody'
 import FastifySwagger from 'fastify-swagger'
 import User from './types/User'
 
-import loginPlugin, { JwtPluginOption } from './login'
-import datePlugin, { MysqlPluginOption } from './appointment'
+import authPlugin, { JwtPluginOption } from './auth'
+import appointmentPlugin, { MysqlPluginOption } from './appointment'
 
 interface BePluginOption {
   mysql?: MysqlPluginOption,
@@ -21,12 +21,22 @@ const be : FastifyPlugin<BePluginOption> = function (server, ops, done) {
     routePrefix: '/documentation',
     exposeRoute: true,
     swagger: {
+      tags: [
+        {
+          name: 'Authentication',
+          description: 'Authentication APIs'
+        },
+        {
+          name: 'Appointments',
+          description: 'Appointments APIs'
+        }
+      ],
       securityDefinitions: {
         oAuthSample: {
           type: 'oauth2',
           description: 'foo',
           flow: 'password',
-          tokenUrl: '/auth',
+          tokenUrl: '/oauth/token',
           scopes: {
             qq: 'pp'
           }
@@ -34,8 +44,8 @@ const be : FastifyPlugin<BePluginOption> = function (server, ops, done) {
       }
     }
   })
-  server.register(loginPlugin, jwtOptions)
-  server.register(datePlugin, mysqlOptions)
+  server.register(authPlugin, jwtOptions)
+  server.register(appointmentPlugin, mysqlOptions)
 
   done()
 }

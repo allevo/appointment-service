@@ -11,7 +11,7 @@ export interface JwtPluginOption {
   secret: string;
 }
 
-const loginPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, done: Function) {
+const authPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, done: Function) {
   server.register(FastifyJwt, { secret: ops.secret })
 
   server.decorate('getUser', async function (request: any): Promise<User> {
@@ -24,10 +24,20 @@ const loginPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, do
   server.route<{
     Body: AuthBodySchemaInterface
   }>({
-    url: '/auth',
+    url: '/oauth/token',
     method: 'POST',
     schema: {
-      body: AuthBodySchema
+      body: AuthBodySchema,
+      tags: ['Authentication'],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            access_token: { type: 'string' },
+            token_type: { type: 'string' }
+          }
+        }
+      }
     },
     handler: async request => {
       const token = server.jwt.sign({ username: request.body.username })
@@ -39,10 +49,20 @@ const loginPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, do
   })
   server.get('/me', {
     schema: <FastifySchema>{
+      tags: ['Authentication'],
       summary: 'Get me',
       security: [
         { oAuthSample: ['qq'] }
-      ]
+      ],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            username: { type: 'string' }
+          }
+        }
+      }
     },
     onRequest: request => request.jwtVerify(),
     handler: async request => {
@@ -54,8 +74,8 @@ const loginPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, do
   done()
 })
 
-module.exports = loginPlugin
-export default loginPlugin
+module.exports = authPlugin
+export default authPlugin
 
 declare module 'fastify' {
   interface FastifyInstance {
