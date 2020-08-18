@@ -7,7 +7,7 @@ import index from '../index'
 import { setUpDatabase } from './utils'
 
 t.test('appointments', async t => {
-  const fastify = Fastify({ logger: { level: 'trace' } })
+  const fastify = Fastify({ logger: { level: 'trace' } })
 
   const databaseName = 'my-db-' + uuidV4()
   await setUpDatabase(t, fastify.log, databaseName)
@@ -19,13 +19,13 @@ t.test('appointments', async t => {
       user: 'root',
       password: '1234',
       database: databaseName,
-      connectionLimit: 10,
+      connectionLimit: 10
     },
     jwt: {
       secret: 'wow'
     }
   })
-  t.tearDown(async () => { await fastify.close() })
+  t.tearDown(async () => { await fastify.close() })
 
   const loginResponse = await fastify.inject({
     method: 'POST',
@@ -44,7 +44,7 @@ t.test('appointments', async t => {
     method: 'POST',
     path: '/appointments/',
     headers: {
-      'Authorization': 'Bearer ' + loginOutput.access_token
+      Authorization: 'Bearer ' + loginOutput.access_token
     },
     payload: {
       title: 'my-title',
@@ -52,7 +52,7 @@ t.test('appointments', async t => {
       creatorUsername: 'my-creator-username',
       description: 'the description',
       startDate: new Date('2020-08-18T15:00:00Z').toISOString(),
-      endDate: new Date('2020-08-18T16:00:00Z').toISOString(),
+      endDate: new Date('2020-08-18T16:00:00Z').toISOString()
     }
   })
 
@@ -65,7 +65,7 @@ t.test('appointments', async t => {
     method: 'GET',
     path: '/appointments/' + insertOutput.id,
     headers: {
-      'Authorization': 'Bearer ' + loginOutput.access_token
+      Authorization: 'Bearer ' + loginOutput.access_token
     }
   })
 
@@ -77,7 +77,7 @@ t.test('appointments', async t => {
     method: 'GET',
     path: '/appointments/year/2020/week/33',
     headers: {
-      'Authorization': 'Bearer ' + loginOutput.access_token
+      Authorization: 'Bearer ' + loginOutput.access_token
     }
   })
 
@@ -86,12 +86,11 @@ t.test('appointments', async t => {
   t.equals(weekOutput.length, 1)
   t.equals(weekOutput[0].id, insertOutput.id)
 
-
   const deleteResponse = await fastify.inject({
     method: 'DELETE',
     path: '/appointments/' + insertOutput.id,
     headers: {
-      'Authorization': 'Bearer ' + loginOutput.access_token
+      Authorization: 'Bearer ' + loginOutput.access_token
     }
   })
 
@@ -101,7 +100,7 @@ t.test('appointments', async t => {
     method: 'GET',
     path: '/appointments/' + insertOutput.id,
     headers: {
-      'Authorization': 'Bearer ' + loginOutput.access_token
+      Authorization: 'Bearer ' + loginOutput.access_token
     }
   })
 

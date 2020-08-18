@@ -10,7 +10,7 @@ t.test('login', async t => {
   })
 
   const username = 'my-username'
-  
+
   const loginResponse = await fastify.inject({
     method: 'POST',
     path: '/auth',
@@ -24,12 +24,11 @@ t.test('login', async t => {
   const loginOutput = JSON.parse(loginResponse.payload)
   t.ok(loginOutput.access_token)
 
-
   const meResponse = await fastify.inject({
     method: 'GET',
     path: '/me',
     headers: {
-      'Authorization': 'Bearer ' + loginOutput.access_token
+      Authorization: 'Bearer ' + loginOutput.access_token
     }
   })
 

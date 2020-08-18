@@ -9,13 +9,13 @@ import CreateBodySchema from './schemas/create_date_body.json'
 import { CreateBodySchema as CreateBodySchemaInterface } from './types/create_date_body'
 
 import DeleteParamsSchema from './schemas/delete_date_params.json'
-import { DeleteParamsSchema as DeleteParamsSchemaInterface }  from './types/delete_date_params'
+import { DeleteParamsSchema as DeleteParamsSchemaInterface } from './types/delete_date_params'
 
 import GetParamsSchema from './schemas/get_date_params.json'
-import { GetParamsSchema as GetParamsSchemaInterface }  from './types/get_date_params'
+import { GetParamsSchema as GetParamsSchemaInterface } from './types/get_date_params'
 
 import WeekParamsSchema from './schemas/week_date_params.json'
-import { WeekParamsSchema as WeekParamsSchemaInterface }  from './types/week_date_params'
+import { WeekParamsSchema as WeekParamsSchemaInterface } from './types/week_date_params'
 
 export interface MysqlPluginOption {
   connectionLimit: number,
@@ -26,13 +26,13 @@ export interface MysqlPluginOption {
 }
 
 const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: FastifyInstance, ops: MysqlPluginOption, done: Function) {
-  const pool  = mysql.createPool({
+  const pool = mysql.createPool({
     connectionLimit: ops.connectionLimit,
     host: ops.host,
     user: ops.user,
     password: ops.password,
     database: ops.database
-  });
+  })
   server.addHook('onClose', (_, done) => pool.end(done))
 
   const appointmentManager = new AppointmentManager(pool)
@@ -44,11 +44,11 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
       body: CreateBodySchema,
       summary: 'Create a new appointment',
       security: [
-        { oAuthSample: [ 'qq' ] }
+        { oAuthSample: ['qq'] }
       ]
     },
     onRequest: request => request.jwtVerify(),
-    handler: async (request, reply) => {
+    handler: async request => {
       const user = await server.getUser(request)
       const appointment = <Appointment>{
         title: request.body.title,
@@ -67,13 +67,13 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
     Params: DeleteParamsSchemaInterface
   }>('/appointments/:id', {
     schema: {
-      params: DeleteParamsSchema,
+      params: DeleteParamsSchema
     },
     onRequest: request => request.jwtVerify(),
     handler: async (request, reply) => {
-      const user = await server.getUser(request)
+      // const user = await server.getUser(request)
       await appointmentManager.cancelAppointment(request.log, request.params.id)
-      
+
       reply.code(204)
     }
   })
@@ -82,11 +82,11 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
     Params: GetParamsSchemaInterface
   }>('/appointments/:id', {
     schema: {
-      params: GetParamsSchema,
+      params: GetParamsSchema
     },
     onRequest: request => request.jwtVerify(),
     handler: async (request, reply) => {
-      const user = await server.getUser(request)
+      // const user = await server.getUser(request)
       try {
         const appointmentOnDatabase = await appointmentManager.getAppointment(request.log, request.params.id)
         return appointmentOnDatabase
@@ -104,11 +104,11 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
     Params: WeekParamsSchemaInterface
   }>('/appointments/year/:year/week/:week', {
     schema: {
-      params: WeekParamsSchema,
+      params: WeekParamsSchema
     },
     onRequest: request => request.jwtVerify(),
-    handler: async (request, reply) => {
-      const user = await server.getUser(request)
+    handler: async request => {
+      // const user = await server.getUser(request)
       const {
         year, week
       } = request.params

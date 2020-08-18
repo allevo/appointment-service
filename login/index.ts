@@ -13,27 +13,27 @@ export interface JwtPluginOption {
 
 const loginPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, done: Function) {
   server.register(FastifyJwt, { secret: ops.secret })
-  
+
   server.decorate('getUser', async function (request: any): Promise<User> {
     return {
       id: Buffer.from(request.user.username).toString('hex'),
-      username: request.user.username,
+      username: request.user.username
     }
   })
 
-  server.route<{ 
+  server.route<{
     Body: AuthBodySchemaInterface
   }>({
     url: '/auth',
     method: 'POST',
     schema: {
-      body: AuthBodySchema,
+      body: AuthBodySchema
     },
-    handler: async (request, reply) => {
+    handler: async request => {
       const token = server.jwt.sign({ username: request.body.username })
       return {
         access_token: token,
-        token_type: 'bearer',
+        token_type: 'bearer'
       }
     }
   })
@@ -41,11 +41,11 @@ const loginPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, do
     schema: <FastifySchema>{
       summary: 'Get me',
       security: [
-        { oAuthSample: [ 'qq' ] }
+        { oAuthSample: ['qq'] }
       ]
     },
     onRequest: request => request.jwtVerify(),
-    handler: async (request, reply) => {
+    handler: async request => {
       const user = await server.getUser(request)
       return user
     }

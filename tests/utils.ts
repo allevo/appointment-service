@@ -7,7 +7,7 @@ export async function setUpDatabase (t: any, log: FastifyLoggerInstance, databas
   const conn = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '1234',
+    password: '1234'
   })
   t.tearDown(() => conn.end())
 
