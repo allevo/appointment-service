@@ -2,7 +2,7 @@ import t from 'tap'
 import pino from 'pino'
 import mysql from 'mysql'
 import { v4 as uuidV4 } from 'uuid'
-import AppointmentManager, { Appointment } from '../date/lib/AppointmentManager'
+import AppointmentManager, { Appointment } from '../appointment/lib/AppointmentManager'
 
 import { setUpDatabase } from './utils'
 

@@ -25,7 +25,7 @@ export interface MysqlPluginOption {
   database: string,
 }
 
-const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: FastifyInstance, ops: MysqlPluginOption, done: Function) {
+const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: FastifyInstance, ops: MysqlPluginOption, done: Function) {
   const pool = mysql.createPool({
     connectionLimit: ops.connectionLimit,
     host: ops.host,
@@ -120,5 +120,5 @@ const datePlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: Fastif
   done()
 })
 
-module.exports = datePlugin
-export default datePlugin
+module.exports = appointmentPlugin
+export default appointmentPlugin

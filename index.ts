@@ -5,7 +5,7 @@ import FastifySwagger from 'fastify-swagger'
 import User from './types/User'
 
 import loginPlugin, { JwtPluginOption } from './login'
-import datePlugin, { MysqlPluginOption } from './date'
+import datePlugin, { MysqlPluginOption } from './appointment'
 
 interface BePluginOption {
   mysql?: MysqlPluginOption,

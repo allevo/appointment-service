@@ -1,19 +1,20 @@
 {
-  "name": "date-service",
+  "name": "appointment-service",
   "version": "1.0.0",
-  "description": "A date service",
+  "description": "An appointment service",
   "main": "index.js",
   "scripts": {
     "prebuild": "npm run compile-schemas",
     "build": "tsc -p tsconfig.json",
     "prestart": "npm run build",
     "start": "fastify start index.js",
-    "compile-schemas": "npm run compile-schemas-login && npm run compile-schemas-date",
+    "compile-schemas": "npm run compile-schemas-login && npm run compile-schemas-appointment",
     "compile-schemas-login": "json2ts -i login/schemas -o login/types",
-    "compile-schemas-date": "json2ts -i date/schemas -o date/types",
+    "compile-schemas-appointment": "json2ts -i appointment/schemas -o appointment/types",
     "pretest": "npm run build",
     "test": "npm run lint && npm run unit",
     "unit": "tap -b -j1 tests/*.test.ts",
+    "coverage": "tap --coverage-report=html -b -j1 tests/*.test.ts",
     "lint": "standardx **/*.ts"
   },
   "repository": {

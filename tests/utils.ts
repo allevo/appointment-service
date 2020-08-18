@@ -1,7 +1,7 @@
 import { FastifyLoggerInstance } from 'fastify'
 import mysql from 'mysql'
 
-import AppointmentManager from '../date/lib/AppointmentManager'
+import AppointmentManager from '../appointment/lib/AppointmentManager'
 
 export async function setUpDatabase (t: any, log: FastifyLoggerInstance, databaseName: string) {
   const conn = mysql.createConnection({
