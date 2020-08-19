@@ -28,7 +28,7 @@ npm test
 
 - [x] http interface
 - [x] login
-- [ ] ACL
+- [x] ACL
 - [x] Test
 - [x] Better swagger tag
 - [ ] Configure CI

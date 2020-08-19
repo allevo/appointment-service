@@ -6,6 +6,11 @@ import AppointmentManager, { Appointment } from '../appointment/lib/AppointmentM
 
 import { setUpDatabase } from './utils'
 
+const user = {
+  id: 'my-creator-id',
+  username: 'my-creator-username'
+}
+
 t.test('AppointmentManager', async t => {
   const databaseName = 'my-db-' + uuidV4()
   const log = pino({ level: 'trace' })
@@ -23,34 +28,32 @@ t.test('AppointmentManager', async t => {
   t.test('insertAppointment', async t => {
     const appointment = {
       title: 'my-title',
-      creatorId: 'my-creator-id',
-      creatorUsername: 'my-creator-username',
       description: 'the description',
       startDate: new Date('2020-08-18T15:00:00Z'),
       endDate: new Date('2020-08-18T16:00:00Z')
     }
-    const appointmentOnDatabase = await appointmentManager.insertAppointment(log, appointment)
+    const appointmentOnDatabase = await appointmentManager.insertAppointment(log, user, appointment)
 
     t.test('should return the correct object', t => {
       t.ok(appointmentOnDatabase.id)
       t.equals(appointmentOnDatabase.title, appointment.title)
       t.equals(appointmentOnDatabase.description, appointment.description)
-      t.equals(appointmentOnDatabase.creatorUsername, appointment.creatorUsername)
-      t.equals(appointmentOnDatabase.creatorId, appointment.creatorId)
+      t.equals(appointmentOnDatabase.creatorUsername, user.username)
+      t.equals(appointmentOnDatabase.creatorId, user.id)
       t.strictDeepEquals(appointmentOnDatabase.startDate, appointment.startDate)
       t.strictDeepEquals(appointmentOnDatabase.endDate, appointment.endDate)
       t.end()
     })
 
     t.test('can be retrieved by getAppointment', async t => {
-      const fetchedAppointment = await appointmentManager.getAppointment(log, appointmentOnDatabase.id!)
+      const fetchedAppointment = await appointmentManager.getAppointment(log, user, appointmentOnDatabase.id!)
 
       t.test('should fetch the correct object', t => {
         t.equal(fetchedAppointment.id, appointmentOnDatabase.id)
         t.equals(fetchedAppointment.title, appointment.title)
         t.equals(fetchedAppointment.description, appointment.description)
-        t.equals(fetchedAppointment.creatorUsername, appointment.creatorUsername)
-        t.equals(fetchedAppointment.creatorId, appointment.creatorId)
+        t.equals(fetchedAppointment.creatorUsername, user.username)
+        t.equals(fetchedAppointment.creatorId, user.id)
         t.strictDeepEquals(fetchedAppointment.startDate, appointment.startDate)
         t.strictDeepEquals(fetchedAppointment.endDate, appointment.endDate)
         t.end()
@@ -64,7 +67,27 @@ t.test('AppointmentManager', async t => {
   t.test('getAppointment', t => {
     t.test('should reject if not found', async t => {
       try {
-        await appointmentManager.getAppointment(log, 'unknown-appointment-id')
+        await appointmentManager.getAppointment(log, user, 'unknown-appointment-id')
+        t.fail()
+      } catch (e) {
+        t.strictDeepEquals(e, new Error('NOT_FOUND'))
+      }
+
+      t.end()
+    })
+
+    t.test('should reject if belong to other user', async t => {
+      const appointmentOnDatabase = await appointmentManager.insertAppointment(log, {
+        id: 'other-user-id',
+        username: 'other-username'
+      }, {
+        title: 'my-title',
+        description: 'the description',
+        startDate: new Date('2020-08-18T15:00:00Z'),
+        endDate: new Date('2020-08-18T16:00:00Z')
+      })
+      try {
+        await appointmentManager.getAppointment(log, user, appointmentOnDatabase.id!)
         t.fail()
       } catch (e) {
         t.strictDeepEquals(e, new Error('NOT_FOUND'))
@@ -106,8 +129,6 @@ t.test('AppointmentManager', async t => {
   t.test('getAppointmentsByWeek', async t => {
     const baseAppointment = {
       title: 'my-title',
-      creatorId: 'my-creator-id',
-      creatorUsername: 'my-creator-username',
       description: 'the description',
       startDate: new Date('2020-08-18T15:00:00Z'),
       endDate: new Date('2020-08-18T16:00:00Z')
@@ -126,11 +147,16 @@ t.test('AppointmentManager', async t => {
     ]
     const appointmentsOnDatabase: Array<Appointment> = []
     for (const date of dates) {
-      appointmentsOnDatabase.push(await appointmentManager.insertAppointment(log, { ...baseAppointment, startDate: date }))
+      appointmentsOnDatabase.push(await appointmentManager.insertAppointment(log, user, { ...baseAppointment, startDate: date }))
     }
+    // in but belong to other user
+    appointmentsOnDatabase.push(await appointmentManager.insertAppointment(log, {
+      id: 'other-user-id',
+      username: 'other-username'
+    }, { ...baseAppointment, startDate: new Date('2020-01-06T00:00:00Z') }))
 
     t.test('return the list', async t => {
-      const appointments = await appointmentManager.getAppointmentsByWeek(log, 2020, 1)
+      const appointments = await appointmentManager.getAppointmentsByWeek(log, user, 2020, 1)
 
       t.strictDeepEquals(appointments.map(a => a.id), [
         appointmentsOnDatabase[2].id,
@@ -147,17 +173,15 @@ t.test('AppointmentManager', async t => {
   t.test('cancelAppointment', async t => {
     const targetAppointment = {
       title: 'my-title',
-      creatorId: 'my-creator-id',
-      creatorUsername: 'my-creator-username',
       description: 'the description',
       startDate: new Date('2020-08-18T15:00:00Z'),
       endDate: new Date('2020-08-18T16:00:00Z')
     }
-    const appointmentOnDatabase = await appointmentManager.insertAppointment(log, targetAppointment)
-    await appointmentManager.cancelAppointment(log, appointmentOnDatabase.id!)
+    const appointmentOnDatabase = await appointmentManager.insertAppointment(log, user, targetAppointment)
+    await appointmentManager.cancelAppointment(log, user, appointmentOnDatabase.id!)
 
     try {
-      await appointmentManager.getAppointment(log, appointmentOnDatabase.id!)
+      await appointmentManager.getAppointment(log, user, appointmentOnDatabase.id!)
       t.fail()
     } catch (e) {
       t.strictDeepEquals(e, new Error('NOT_FOUND'))
@@ -165,7 +189,7 @@ t.test('AppointmentManager', async t => {
 
     t.test('should reject if appointment is not found', async t => {
       try {
-        await appointmentManager.cancelAppointment(log, appointmentOnDatabase.id!)
+        await appointmentManager.cancelAppointment(log, user, appointmentOnDatabase.id!)
         t.fail()
       } catch (e) {
         t.strictDeepEquals(e, new Error('NOT_FOUND'))

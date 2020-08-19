@@ -1,7 +1,8 @@
 import { FastifyLoggerInstance } from 'fastify'
 import { v4 as uuidV4 } from 'uuid';
 import mysql from 'mysql'
-import { equal } from 'tap';
+
+import User from '../../types/User'
 
 export interface Appointment {
   id?: string;
@@ -9,8 +10,8 @@ export interface Appointment {
   endDate: Date;
   title: string;
   description: string;
-  creatorId: string;
-  creatorUsername: string;
+  creatorId?: string;
+  creatorUsername?: string;
 }
 
 export default class AppointmentManager {
@@ -20,36 +21,53 @@ export default class AppointmentManager {
     this.mysqlPool = mysqlPool
   }
 
-  async insertAppointment(log: FastifyLoggerInstance, appointment: Appointment): Promise<Appointment> {
+  async insertAppointment(log: FastifyLoggerInstance, user: User, appointment: Appointment): Promise<Appointment> {
     const appointmentOnDatabase = {
       ...appointment,
+      creatorId: user.id,
+      creatorUsername: user.username,
       id: uuidV4()
     }
     await exec(this.mysqlPool, log, 'INSERT INTO appointments SET ?;', appointmentOnDatabase)
     return appointmentOnDatabase
   }
 
-  async getAppointment(log: FastifyLoggerInstance, id: string): Promise<Appointment> {
-    const results = await execSelect(this.mysqlPool, log, 'SELECT * from appointments WHERE id=? AND deletedAt IS NULL LIMIT 1;', [id])
+  async getAppointment(log: FastifyLoggerInstance, user: User, id: string): Promise<Appointment> {
+    const results = await execSelect(
+      this.mysqlPool,
+      log,
+      'SELECT * from appointments WHERE id=? AND deletedAt IS NULL AND creatorId = ? LIMIT 1;',
+      [id, user.id]
+    )
     if (results.length === 0) {
       throw new Error('NOT_FOUND')
     }
     return mapAnyToAppointment(results[0])
   }
 
-  async getAppointmentsByWeek(log: FastifyLoggerInstance, year: number, weekNumber: number): Promise<Array<Appointment>> {
+  async getAppointmentsByWeek(log: FastifyLoggerInstance, user: User, year: number, weekNumber: number): Promise<Array<Appointment>> {
     const firstMondayOfYear = AppointmentManager.getStartDayOfWeek(year, weekNumber)
     const secondMondayOfYear = new Date(firstMondayOfYear)
     secondMondayOfYear.setUTCDate(secondMondayOfYear.getUTCDate() + 7)
     
     
-    const results = await execSelect(this.mysqlPool, log, 'SELECT * from appointments WHERE startDate >= ? AND startDate < ?  AND deletedAt IS NULL;', [firstMondayOfYear, secondMondayOfYear])
+    const results = await execSelect(
+      this.mysqlPool,
+      log,
+      'SELECT * from appointments WHERE startDate >= ? AND startDate < ?  AND deletedAt IS NULL AND creatorId = ?;',
+      [firstMondayOfYear, secondMondayOfYear, user.id]
+    )
     return results
       .map(mapAnyToAppointment)
   }
 
-  async cancelAppointment(log: FastifyLoggerInstance, id: string): Promise<void> {
-    const { results } = await exec(this.mysqlPool, log, 'UPDATE appointments SET deletedAt = ? WHERE id = ? AND deletedAt IS NULL;', [new Date(), id])
+  async cancelAppointment(log: FastifyLoggerInstance, user: User, id: string): Promise<void> {
+    const { results } = await exec(
+      this.mysqlPool,
+      log,
+      'UPDATE appointments SET deletedAt = ? WHERE id = ? AND deletedAt IS NULL AND creatorId = ?;',
+      [new Date(), id, user.id]
+    )
     if (results.affectedRows !== 1) {
       throw new Error('NOT_FOUND')
     }

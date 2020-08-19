@@ -3,7 +3,7 @@ import fp from 'fastify-plugin'
 
 import mysql from 'mysql'
 
-import AppointmentManager, { Appointment } from './lib/AppointmentManager'
+import AppointmentManager from './lib/AppointmentManager'
 
 import CreateBodySchema from './schemas/create_appointment_body.json'
 import { CreateBodySchema as CreateBodySchemaInterface } from './types/create_appointment_body'
@@ -54,15 +54,13 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
     onRequest: request => request.jwtVerify(),
     handler: async request => {
       const user = await server.getUser(request)
-      const appointment = <Appointment>{
+      const appointment = {
         title: request.body.title,
         description: request.body.description,
         startDate: new Date(request.body.startDate),
-        endDate: new Date(request.body.endDate),
-        creatorId: user.id,
-        creatorUsername: user.username
+        endDate: new Date(request.body.endDate)
       }
-      const appointmentOnDatabase = await appointmentManager.insertAppointment(request.log, appointment)
+      const appointmentOnDatabase = await appointmentManager.insertAppointment(request.log, user, appointment)
       return appointmentOnDatabase
     }
   })
@@ -80,8 +78,8 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
     },
     onRequest: request => request.jwtVerify(),
     handler: async (request, reply) => {
-      // const user = await server.getUser(request)
-      await appointmentManager.cancelAppointment(request.log, request.params.id)
+      const user = await server.getUser(request)
+      await appointmentManager.cancelAppointment(request.log, user, request.params.id)
 
       reply.code(204)
     }
@@ -103,9 +101,9 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
     },
     onRequest: request => request.jwtVerify(),
     handler: async (request, reply) => {
-      // const user = await server.getUser(request)
+      const user = await server.getUser(request)
       try {
-        const appointmentOnDatabase = await appointmentManager.getAppointment(request.log, request.params.id)
+        const appointmentOnDatabase = await appointmentManager.getAppointment(request.log, user, request.params.id)
         return appointmentOnDatabase
       } catch (e) {
         if (e.message === 'NOT_FOUND') {
@@ -136,11 +134,11 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
     },
     onRequest: request => request.jwtVerify(),
     handler: async request => {
-      // const user = await server.getUser(request)
+      const user = await server.getUser(request)
       const {
         year, week
       } = request.params
-      const appointmentOnDatabase = await appointmentManager.getAppointmentsByWeek(request.log, year, week)
+      const appointmentOnDatabase = await appointmentManager.getAppointmentsByWeek(request.log, user, year, week)
       return appointmentOnDatabase
     }
   })
