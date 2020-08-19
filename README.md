@@ -18,6 +18,8 @@ source local.env
 npm start
 ```
 
+Open [http://localhost:3000/documentation/](http://localhost:3000/documentation/)
+
 ### Test
 ```sh
 npm ci
