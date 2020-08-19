@@ -19,15 +19,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/allevo/date-service.git"
+    "url": "git+https://github.com/allevo/appointment-service.git"
   },
   "keywords": [],
   "author": "Tommaso Allevi <tomallevi@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/allevo/date-service/issues"
+    "url": "https://github.com/allevo/appointment-service/issues"
   },
-  "homepage": "https://github.com/allevo/date-service#readme",
+  "homepage": "https://github.com/allevo/appointment-service#readme",
   "dependencies": {
     "@types/mysql": "^2.15.15",
     "@types/tap": "^14.10.0",
