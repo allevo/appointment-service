@@ -1,6 +1,6 @@
 # Appointment Service ![build](https://github.com/allevo/appointment-service/workflows/build/badge.svg)
 
-A Appointment service
+An appointment service
 
 
 ## Start
@@ -35,5 +35,5 @@ npm test
 - [x] ACL
 - [x] Test
 - [x] Better swagger tag
-- [ ] Configure CI
+- [x] Configure CI
 - [ ] Move to Lambda using [aws-lambda-fastify](https://github.com/fastify/aws-lambda-fastify)
