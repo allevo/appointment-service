@@ -23,6 +23,7 @@ export interface MysqlPluginOption {
   user: string,
   password: string,
   database: string,
+  port: number,
 }
 
 const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server: FastifyInstance, ops: MysqlPluginOption, done: Function) {
@@ -31,7 +32,8 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
     host: ops.host,
     user: ops.user,
     password: ops.password,
-    database: ops.database
+    database: ops.database,
+    port: ops.port
   })
   server.addHook('onClose', (_, done) => pool.end(done))
 

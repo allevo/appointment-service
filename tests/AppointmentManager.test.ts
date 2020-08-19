@@ -4,7 +4,7 @@ import mysql from 'mysql'
 import { v4 as uuidV4 } from 'uuid'
 import AppointmentManager, { Appointment } from '../appointment/lib/AppointmentManager'
 
-import { setUpDatabase } from './utils'
+import { setUpDatabase, getDatabaseConnectionOption } from './utils'
 
 const user = {
   id: 'my-creator-id',
@@ -13,15 +13,12 @@ const user = {
 
 t.test('AppointmentManager', async t => {
   const databaseName = 'my-db-' + uuidV4()
-  const log = pino({ level: 'silent' })
+  const log = pino({ level: 'info' })
   await setUpDatabase(t, log, databaseName)
 
-  const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: databaseName
-  })
+  const databaseConnectionOption = getDatabaseConnectionOption(databaseName)
+  log.info(databaseConnectionOption)
+  const pool = mysql.createPool(databaseConnectionOption)
   t.tearDown(() => pool.end())
   const appointmentManager = new AppointmentManager(pool)
 

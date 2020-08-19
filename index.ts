@@ -62,7 +62,8 @@ function getDefaultMysqlOptions(obj = process.env): MysqlPluginOption {
     database: obj.MYSQL_DATABASE || '',
     host: obj.MYSQL_HOST || '',
     password: obj.MYSQL_PASSWORD || '',
-    user: obj.MYSQL_USER || ''
+    user: obj.MYSQL_USER || '',
+    port: Number(obj.MYSQL_PORT || '3306')
   }
 }
 

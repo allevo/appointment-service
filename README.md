@@ -1,5 +1,7 @@
-# Appointment Service
+# Appointment Service ![build](https://github.com/allevo/appointment-service/workflows/build/badge.svg)
+
 A Appointment service
+
 
 ## Start
 

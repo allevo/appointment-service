@@ -4,21 +4,20 @@ import { v4 as uuidV4 } from 'uuid'
 
 import index from '../index'
 
-import { setUpDatabase } from './utils'
+import { setUpDatabase, getDatabaseConnectionOption } from './utils'
 
 t.test('appointments', async t => {
-  const fastify = Fastify({ logger: { level: 'silent' } })
+  const fastify = Fastify({ logger: { level: 'info' } })
 
   const databaseName = 'my-db-' + uuidV4()
   await setUpDatabase(t, fastify.log, databaseName)
   const username = 'my-username'
 
+  const databaseConnectionOption = getDatabaseConnectionOption(databaseName)
+  fastify.log.info(databaseConnectionOption)
   fastify.register(index, {
     mysql: {
-      host: 'localhost',
-      user: 'root',
-      password: '1234',
-      database: databaseName,
+      ...databaseConnectionOption,
       connectionLimit: 10
     },
     jwt: {
