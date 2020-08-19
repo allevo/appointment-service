@@ -17,6 +17,7 @@ docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=1234 -p3306:3306 -d --rm mys
 npm ci
 set -a
 source local.env
+ts-node bin/setupDatabase.ts
 npm start
 ```
 
