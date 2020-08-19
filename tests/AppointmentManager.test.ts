@@ -13,7 +13,7 @@ const user = {
 
 t.test('AppointmentManager', async t => {
   const databaseName = 'my-db-' + uuidV4()
-  const log = pino({ level: 'trace' })
+  const log = pino({ level: 'silent' })
   await setUpDatabase(t, log, databaseName)
 
   const pool = mysql.createPool({

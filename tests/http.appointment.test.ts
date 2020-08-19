@@ -7,7 +7,7 @@ import index from '../index'
 import { setUpDatabase } from './utils'
 
 t.test('appointments', async t => {
-  const fastify = Fastify({ logger: { level: 'trace' } })
+  const fastify = Fastify({ logger: { level: 'silent' } })
 
   const databaseName = 'my-db-' + uuidV4()
   await setUpDatabase(t, fastify.log, databaseName)

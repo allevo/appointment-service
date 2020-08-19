@@ -4,7 +4,7 @@ import t from 'tap'
 import index from '../index'
 
 t.test('auth', async t => {
-  const fastify = Fastify()
+  const fastify = Fastify({ logger: { level: 'silent' } })
   fastify.register(index, {
     jwt: { secret: 'wow' }
   })
