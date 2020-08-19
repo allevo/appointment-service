@@ -47,7 +47,7 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
       body: CreateBodySchema,
       summary: 'Create a new appointment',
       security: [
-        { oAuthSample: ['qq'] }
+        { login: [] }
       ],
       response: {
         200: appointmentJsonSchema
@@ -75,7 +75,7 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
       params: DeleteParamsSchema,
       summary: 'Delete a new appointment',
       security: [
-        { oAuthSample: ['qq'] }
+        { login: [] }
       ]
     },
     onRequest: request => request.jwtVerify(),
@@ -95,7 +95,7 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
       params: GetParamsSchema,
       summary: 'Get an appointment',
       security: [
-        { oAuthSample: ['qq'] }
+        { login: [] }
       ],
       response: {
         200: appointmentJsonSchema
@@ -125,7 +125,7 @@ const appointmentPlugin: FastifyPlugin<MysqlPluginOption> = fp(function (server:
       params: WeekParamsSchema,
       summary: 'Get appointments per week',
       security: [
-        { oAuthSample: ['qq'] }
+        { login: [] }
       ],
       response: {
         200: {

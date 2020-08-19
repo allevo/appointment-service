@@ -23,6 +23,9 @@ npm start
 
 Open [http://localhost:3000/documentation/](http://localhost:3000/documentation/)
 
+**NB:** In order to invoke APIs, you need to login.
+There're no user database so any username/password and client_id/client_secret are allowed
+
 ### Test
 ```sh
 npm ci

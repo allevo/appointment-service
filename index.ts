@@ -38,14 +38,12 @@ const be : FastifyPlugin<BePluginOption> = function (server, ops, done) {
         }
       ],
       securityDefinitions: {
-        oAuthSample: {
+        login: {
           type: 'oauth2',
           description: 'foo',
           flow: 'password',
           tokenUrl: '/oauth/token',
-          scopes: {
-            qq: 'pp'
-          }
+          scopes: {}
         }
       }
     }

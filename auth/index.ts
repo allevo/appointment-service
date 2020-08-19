@@ -52,7 +52,7 @@ const authPlugin: FastifyPlugin<JwtPluginOption> = fp(function (server, ops, don
       tags: ['Authentication'],
       summary: 'Get me',
       security: [
-        { oAuthSample: ['qq'] }
+        { login: [] }
       ],
       response: {
         200: {
